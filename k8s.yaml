@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gpu-inference
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gpu-inference
+  template:
+    metadata:
+      labels:
+        app: gpu-inference
+    spec:
+      containers:
+      - name: server
+        image: gpu-inference:latest
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+            nvidia.com/gpu: 1
+          limits:
+            cpu: "1000m"
+            memory: "2Gi"
+            nvidia.com/gpu: 1
+        ports:
+        - containerPort: 8000
+      nodeSelector:
+        nvidia.com/gpu.present: "true"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gpu-inference
+spec:
+  type: ClusterIP
+  selector:
+    app: gpu-inference
+  ports:
+  - port: 80
+    targetPort: 8000
