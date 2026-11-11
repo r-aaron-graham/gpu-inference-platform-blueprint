@@ -51,6 +51,11 @@ app = FastAPI(title="GPU Inference Service", version="0.1.0")
 model = StubModel()
 
 
+@app.get("/health")
+def health() -> dict[str, str]:
+    return {"status": "ok"}
+
+
 @app.post("/predict", response_model=PredictionResponse)
 async def predict(request: PredictionRequest) -> PredictionResponse:
     """Run inference on the provided inputs.
