@@ -1,46 +1,29 @@
 # GPU Inference Platform Blueprint
 
-This repository provides a reference architecture for deploying GPU-accelerated
-machine learning models in a production environment.  It includes a simple
-FastAPI service for serving models, a Dockerfile for containerization, and
-instructions for deploying to Kubernetes or Docker Compose with NVIDIA GPU
-support.
+A FastAPI inference service template with a CUDA container and an example
+Kubernetes deployment. The bundled model is an echo fixture that runs on a CPU.
 
-## Features
-
-- Minimal Python server (`app.py`) exposing a `/predict` endpoint.
-- Container image definition using an official CUDA base image.
-- Guidelines for configuring autoscaling, resource requests/limits, and
-  health checks.
-- Example deployment manifests for Kubernetes using GPU node selectors and
-  affinity rules.
-
-## Getting Started
-
-Install dependencies and run the server locally (requires a GPU with CUDA):
+## Run the local demo
 
 ```bash
-pip install -r requirements.txt
-python app.py
+python -m pip install -r requirements.txt
+python -m uvicorn app:app --host 127.0.0.1 --port 8000
 ```
 
-The server will load a stub model on startup.  POST JSON data to
-`http://localhost:8000/predict` to receive a dummy response.
-
-## Deployment
-
-To build and run the Docker container:
+In another terminal:
 
 ```bash
-docker build -t gpu-inference:latest .
-docker run --gpus all -p 8000:8000 gpu-inference:latest
+curl http://127.0.0.1:8000/health
+curl -X POST http://127.0.0.1:8000/predict -H 'Content-Type: application/json' -d '{"inputs":[1,2]}'
 ```
 
-See `k8s.yaml` for an example Kubernetes deployment.  You may need to
-customize the node selector labels to match your GPU nodes.
+The health endpoint returns `{"status":"ok"}`. The prediction endpoint returns
+`{"outputs":[1,2]}`. An empty input array returns HTTP 400.
 
-## Extending
+## Deployment template
 
-Replace the `StubModel` class in `app.py` with your actual model loading
-and inference code.  Configure resource limits in `k8s.yaml` based on your
-model's memory and GPU usage.
+`Dockerfile` packages the API in a CUDA runtime image. `k8s.yaml` requests
+one NVIDIA GPU, selects GPU nodes, and uses `/health` for readiness and
+liveness. Configure the image reference and node selector for your cluster.
+The probes check the fixture API's HTTP availability. A trained model adapter
+would need its own readiness checks and resource sizing.
