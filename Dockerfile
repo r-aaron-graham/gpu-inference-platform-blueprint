@@ -11,6 +11,7 @@ RUN pip3 install --no-cache-dir -r /app/requirements.txt
 COPY app.py /app/app.py
 
 WORKDIR /app
+USER 10001:10001
 
 EXPOSE 8000
 

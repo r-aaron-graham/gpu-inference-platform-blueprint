@@ -27,3 +27,12 @@ one NVIDIA GPU, selects GPU nodes, and uses `/health` for readiness and
 liveness. Configure the image reference and node selector for your cluster.
 The probes check the fixture API's HTTP availability. A trained model adapter
 would need its own readiness checks and resource sizing.
+
+## Deployment verification
+
+```sh
+docker build -t reviewer-smoke .
+docker run --rm -p 127.0.0.1:8000:8000 reviewer-smoke
+```
+
+From another terminal, run `curl --fail http://127.0.0.1:8000/health`. Expect HTTP 200. The smoke test exercises the echo fixture on a CPU. Kubernetes scheduling, model performance, and GPU execution remain unverified.
