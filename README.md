@@ -1,6 +1,6 @@
 # GPU Inference Platform Blueprint
 
-A FastAPI inference service template with a CUDA container and an example
+A FastAPI inference service template with a CPU reviewer container and an example
 Kubernetes deployment. The bundled model is an echo fixture that runs on a CPU.
 
 ## Run the local demo
@@ -22,7 +22,7 @@ The health endpoint returns `{"status":"ok"}`. The prediction endpoint returns
 
 ## Deployment template
 
-`Dockerfile` packages the API in a CUDA runtime image. `k8s.yaml` requests
+`Dockerfile.cuda` is an optional CUDA runtime template. Its build and GPU execution need separate verification. The default `Dockerfile` uses Python 3.12 and packages the CPU fixture. `k8s.yaml` requests
 one NVIDIA GPU, selects GPU nodes, and uses `/health` for readiness and
 liveness. Configure the image reference and node selector for your cluster.
 The probes check the fixture API's HTTP availability. A trained model adapter
